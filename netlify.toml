@@ -1,6 +1,16 @@
 [build]
   command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [build.environment]
   NODE_VERSION = "24.14.0"
   NETLIFY_NEXT_SKEW_PROTECTION = "true"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/___netlify-server-handler"
+  status = 200
+  force = false
