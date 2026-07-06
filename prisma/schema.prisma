@@ -1,0 +1,63 @@
+// Zoho Task Generator — Prisma Schema
+// Netlify production requires a networked PostgreSQL database.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  department    String
+  subDepartment String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  drafts  Draft[]
+  exports ExportHistory[]
+}
+
+model Draft {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("Untitled Task List")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  @@index([userId])
+}
+
+model Task {
+  id       String    @id @default(cuid())
+  draftId  String
+  taskName String?
+  dueDate  DateTime?
+  order    Int       @default(0)
+
+  draft Draft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@index([draftId])
+}
+
+model ExportHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  filename  String
+  taskCount Int
+  csvData   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
